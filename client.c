@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
 #define TCP_PORT        45210
 #define UDP_PORT        45211
@@ -124,13 +125,15 @@ void *tcp_worker()
 /* UDP thread */
 int main()
 {
-    int client_socket;
+    int client_socket, msg_count = 0, total_msg_count = 0, check = 0;
+    double time_taken;
     struct sockaddr_in server_addr, local_addr;
     char buffer[128] = "Oi mate, it's time to send that file";
     socklen_t sock_len = sizeof(struct sockaddr_in);
     Message file_contents[1000];
     Message recv_message;
     done_recv = false, all_recv = false;
+    clock_t start, end;
 
     for (int i=0; i < sizeof(ack_array)/sizeof(ack_array[0]); i++)
     {
@@ -191,7 +194,8 @@ int main()
     }  
     printf("[UDP] Message sent\n");
 
-    int msg_count = 0, total_msg_count = 0, check = 0;
+    
+    start = clock();
     while(!all_recv)
     {
         /* Receive messages from server. */
@@ -223,6 +227,12 @@ int main()
             sched_yield();
         }
     }
+    end = clock();
+
+    /* Report total time taken for transferring file */
+    time_taken = ((double) (end-start)) / CLOCKS_PER_SEC;
+    printf("[Client] Total time taken for file transfer: %f", time_taken);
+
     pthread_join(tcp_thread, NULL);
     pthread_mutex_destroy(&lock);
 
@@ -235,12 +245,11 @@ int main()
         fwrite(file_contents[j].data, CHUNK_SIZE, 1, fp);
     }
 
-    /* Determine file size */
+    /* Determine file size and output it */
     fseek(fp, 0, SEEK_END);
 	long int file_size = ftell(fp);
 	printf("%ld is the new file size.\n", file_size);
     fclose(fp);
-
 
     return 0;
 }

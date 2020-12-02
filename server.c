@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define TCP_PORT        45210
 #define UDP_PORT        45211
@@ -227,6 +228,9 @@ int main()
     recv_len = recvfrom(server_udp_socket, buffer, 1024, 0, (struct sockaddr*)&client_addr, &sock_len);
     printf("[UDP] Message received from client: %s\n", buffer);
     
+    clock_t start, end;
+    double time_taken;
+    start = clock();
     while(!all_sent)
     {
         /* Begin sending messages */
@@ -254,6 +258,12 @@ int main()
             sched_yield();
         }
     }
+    end = clock();
+
+    /* Report total time taken for transferring file */
+    time_taken = ((double) (end-start)) / CLOCKS_PER_SEC;
+    printf("[Server] Total time taken for file transfer: %f", time_taken);
+
     pthread_join(tcp_thread, NULL);
     pthread_mutex_destroy(&lock);
     close(server_udp_socket);
