@@ -3,8 +3,6 @@
 A multithreaded socket program for transferring a file over UDP.
 
 ## How it works
-Since most of my code is adapted from HW4, I am operating under the assumption that it works. Every time I have tried to test my implementation I keep getting
-the `"GETTING A WOULD BLOCK"` print statement and I am not sure why, as I am sending and receiving the messages using the same struct so they are the same sizes. Aside from this issue, the code should rebuild the file correctly.
 
 ### Server
 1. The server opens the file and reads its contents into an array of type `Message` (user-defined struct).

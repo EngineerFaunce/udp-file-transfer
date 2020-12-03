@@ -194,7 +194,6 @@ int main()
     }  
     printf("[UDP] Message sent\n");
 
-    
     start = clock();
     while(!all_recv)
     {
